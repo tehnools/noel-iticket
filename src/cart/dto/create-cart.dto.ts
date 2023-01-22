@@ -1,10 +1,13 @@
 import { IsNumber } from 'class-validator';
+import { TicketType } from 'src/ticket/dto/ticketType.dto';
 import { CartEntity } from '../entities/cart.entity';
 
-export class CreateCartDto implements CartEntity {
+export class CreateCartDto {
   @IsNumber()
   id: number;
 
   @IsNumber()
-  total: number;
+  eventId: number;
+
+  tickets: TicketType[];
 }

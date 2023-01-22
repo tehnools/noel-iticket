@@ -1,17 +1,8 @@
-import { IsNumber, IsString } from 'class-validator';
+import { TicketTypeEntity } from './ticketType.entity';
 
-export type TicketType = 'Adult' | 'Child';
-
-export class Ticket {
-  @IsNumber()
+export class TicketEntity {
   id: number;
-
-  @IsNumber()
-  eventId: number;
-
-  @IsNumber()
-  price: number;
-
-  @IsString()
-  type: TicketType;
+  seat: number;
+  cartId: number;
+  eventType: TicketTypeEntity;
 }
