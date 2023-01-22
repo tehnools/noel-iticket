@@ -1,43 +1,51 @@
+import e from 'express';
 import { TicketType } from 'src/ticket/dto/ticketType.dto';
 
 export const discount = (tickets: TicketType[]) => {
   // assuming max tickets cannot go greater than 15
   const adultDiscount = 0.9;
-
   let total = 0;
   const adults = tickets.filter((ticket) => ticket.type === 'Adult');
   const children = tickets.filter((ticket) => ticket.type === 'Child');
 
-  while (adults.length !== 0 && children.length !== 0) {
+  while (adults.length !== 0 || children.length !== 0) {
     if (adults.length === 1) {
-      total += 25;
-      adults.pop();
+      total += adults.pop().price;
+      console.log('total');
       break;
     }
     if (children.length === 1) {
-      total += 15;
-      children.pop();
+      total += children.pop().price;
       break;
     }
 
     if (children.length === 0) {
       if (adults.length % 4 === 0) {
-        adults.pop();
-        adults.pop();
-        adults.pop();
-        adults.pop();
-        total += 100 * 0.9;
+        total +=
+          (adults.pop().price +
+            adults.pop().price +
+            adults.pop().price +
+            adults.pop().price) *
+          adultDiscount;
+      } else {
+        total += adults.pop().price;
       }
-    }
-
-    if (children.length % 3 === 0) {
-      children.pop();
-      children.pop();
-      children.pop();
-      if (adults.length % 2 === 0) {
+    } else {
+      if (children.length % 3 === 0 && adults.length % 2 === 0) {
+        children.pop();
+        children.pop();
+        children.pop();
         adults.pop();
         adults.pop();
         total += 70;
+      } else if (children.length % 2 === 0 && adults.length % 2 === 0) {
+        children.pop();
+        children.pop();
+        adults.pop();
+        adults.pop();
+        total += 70;
+      } else {
+        total += children.pop().price;
       }
     }
   }

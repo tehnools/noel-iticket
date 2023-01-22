@@ -20,8 +20,8 @@ describe('discount', () => {
    it should have no discount`, () => {
     const tickets: TicketType[] = [
       { id: 1, price: 25, type: 'Adult' },
-      { id: 1, price: 25, type: 'Adult' },
-      { id: 1, price: 25, type: 'Adult' },
+      { id: 2, price: 25, type: 'Adult' },
+      { id: 3, price: 25, type: 'Adult' },
     ];
     const total = discount(tickets);
     expect(total).toBe(75);
@@ -29,7 +29,7 @@ describe('discount', () => {
 
   it(`Given the there is one child,
   it should return 15`, () => {
-    const tickets: TicketType[] = [{ id: 1, price: 25, type: 'Child' }];
+    const tickets: TicketType[] = [{ id: 1, price: 15, type: 'Child' }];
     const total = discount(tickets);
     expect(total).toBe(15);
   });
