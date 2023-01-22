@@ -20,25 +20,24 @@ export const discount = (tickets: TicketType[]) => {
     }
 
     if (children.length === 0) {
-      if (adults.length % 4 === 0) {
-        total +=
-          (adults.pop().price +
-            adults.pop().price +
-            adults.pop().price +
-            adults.pop().price) *
-          adultDiscount;
+      if (adults.length >= 4) {
+        const remainingAdultPrices = adults
+          .map((ticket) => ticket.price)
+          .reduce((total, price) => total + price);
+        total += remainingAdultPrices * adultDiscount;
+        break;
       } else {
         total += adults.pop().price;
       }
     } else {
-      if (children.length % 3 === 0 && adults.length % 2 === 0) {
+      if (3 % children.length === 0 && 2 % adults.length === 0) {
         children.pop();
         children.pop();
         children.pop();
         adults.pop();
         adults.pop();
         total += 70;
-      } else if (children.length % 2 === 0 && adults.length % 2 === 0) {
+      } else if (2 % children.length === 0 && 2 % adults.length === 0) {
         children.pop();
         children.pop();
         adults.pop();
