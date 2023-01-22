@@ -1,13 +1,14 @@
-import { Database, OPEN_CREATE, OPEN_READWRITE } from 'sqlite3';
+import { Database } from 'sqlite3';
 
 export class DatabaseDao {
-  db: Database;
+  // for the sake of time this is set as public
+  public db: Database;
 
   constructor() {
     this.init();
   }
 
-  init() {
+  private init() {
     this.db = this.createDatabase();
   }
 
@@ -21,51 +22,61 @@ export class DatabaseDao {
     });
   }
 
+  // Enables foreign keys first
   createTables() {
     this.db.exec(
-      `
-    create table IF NOT EXISTS ticket(
-        id int PRIMARY KEY,
-        price int NOT null,
-        type TEXT NOT null,
-        event_id int NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
+      ` 
+    PRAGMA foreign_keys = ON; 
+    create table IF NOT EXISTS event (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_name TEXT NOT null,
+        event_image_url TEXT NOT null,
+        event_type TEXT NOT null,
+        booking_limit int NOT null
     );
 
-    create table IF NOT EXISTS event (
-            id int PRIMARY KEY,
-            event_name TEXT NOT null,
-            event_image_url TEXT NOT null,
-            event_type TEXT NOT null,
-            booking_limit int NOT null
+    create table IF NOT EXISTS cart (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cart_total int NOT null
+    );
+
+    create table IF NOT EXISTS ticket(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        price INTEGER NOT null,
+        type TEXT NOT null,
+        event_id INTEGER NOT null,
+        FOREIGN KEY (event_id) REFERENCES event(id) 
+        ON DELETE CASCADE
     );
 
     create table IF NOT EXISTS cart_to_event(
-        id int PRIMARY KEY,
-        cart_id int NOT null,
-        event_id int  NOT null,
-        FOREIGN KEY (cart_id) REFERENCES cart(id),
-        FOREIGN KEY (event_id) REFERENCES event(id),
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cart_id INTEGER NOT null,
+        event_id INTEGER  NOT null,
+        FOREIGN KEY (cart_id) REFERENCES cart(id) 
+        ON DELETE CASCADE,
+        FOREIGN KEY (event_id) REFERENCES event(id) 
+        ON DELETE CASCADE,
         UNIQUE(cart_id, event_id)
     );
 
     create table IF NOT EXISTS seat (
-        id int PRIMARY KEY,
-        value int NOT null UNIQUE
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        value INTEGER NOT null UNIQUE
     );
 
-    create table IF NOT EXISTS event_to_seat (
-        id int PRIMARY KEY,
-        event_id int NOT null,
-        seat_id int NOT null,
-        UNIQUE(event_id, seat_id)
+    create table IF NOT EXISTS cart_to_seat (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cart_id INTEGER NOT null,
+        seat_id INTEGER NOT null,
+        UNIQUE(cart_id, seat_id)
     );
   
     create table IF NOT EXISTS ga_area (
-        id int PRIMARY KEY,
-        value int NOT null,
-        event_id int NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        value INTEGER NOT null,
+        event_id INTEGER NOT null,
+        FOREIGN KEY (event_id) REFERENCES event(id) ON DELETE CASCADE
     );
     `,
       (err) => {
@@ -76,6 +87,96 @@ export class DatabaseDao {
         //TODO write default data
       },
     );
+  }
+
+  // Insert row, values denoted
+  public async insert(
+    tableName: string,
+    params: { [key: string]: string | number },
+  ): Promise<number> {
+    const query = `INSERT INTO ${tableName} (${Object.keys(params)
+      .map((key) => key)
+      .join(', ')}) VALUES (${Object.keys(params).map(
+      () => '?',
+    )}) RETURNING id`;
+    const values = Object.values(params);
+
+    return new Promise((res, rej) => {
+      console.info('INSERTNG QUERY: ' + query);
+      console.info('Values', values);
+      this.db.run(query, values, function (err) {
+        if (err) {
+          console.error(`Query Error: ${err}`);
+          rej(err);
+        }
+        res(this.lastID);
+      });
+    });
+  }
+
+  public async getAll<T>(tableName: string, id: number): Promise<T[]> {
+    const query = `SELECT * FROM ${tableName} WHERE id = ?;`;
+    return new Promise((res, rej) => {
+      this.db.get(query, [id], (err, rows) => {
+        if (err) {
+          console.error(`Query Error: ${err}`);
+          rej(err);
+        }
+        res(rows);
+      });
+    });
+  }
+
+  public async getById<T>(tableName: string, id: number): Promise<T> {
+    const query = `SELECT * FROM ${tableName} WHERE id = ?;`;
+    return new Promise((res, rej) => {
+      this.db.get(query, [id], (err, row) => {
+        if (err) {
+          console.error(`Query Error: ${err}`);
+          rej(err);
+        }
+        res(row);
+      });
+    });
+  }
+
+  // Insert row, values denoted
+  public async update(
+    tableName: string,
+    params: { [key: string]: string | number },
+    condition: string,
+  ): Promise<void> {
+    const query = `UPDATE ${tableName}
+    SET ${Object.keys(params)
+      .map((key) => `${key} = ?`)
+      .join(',')}
+        ${condition} 
+    ;`;
+
+    return new Promise((res, rej) => {
+      const values = [...Object.values(params), condition];
+      console.info('UPDATING QUERY: ' + query);
+      console.info('Values', values);
+
+      this.db.run(query, values, function (err) {
+        if (err) {
+          console.error(`Query Error: ${err}`);
+          rej(err);
+        }
+        res();
+      });
+    });
+  }
+
+  public delete(queryString: string, values: (string | number)[]) {
+    return this.db.run(queryString, values, (err, rows) => {
+      if (err) {
+        console.error(`Query Error: ${err}`);
+        throw err;
+      }
+      console.log(`rows: ${rows}`);
+      return rows;
+    });
   }
 
   async close() {

@@ -7,7 +7,9 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 export class CartService {
   dbDao: DatabaseDao;
 
-  create(createCartDto: CreateCartDto) {
+  async create(createCartDto: CreateCartDto) {
+    // const sql = `INSERT * INTO`
+
     return 'This action adds a new cart';
   }
 
