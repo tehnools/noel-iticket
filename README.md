@@ -26,6 +26,10 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Diagram
+
+[Relation diagrame on Miro](https://miro.com/welcomeonboard/aE55RVFTTVJiSXZwUG9neHVWbnNNQUNrVzNwNGhxUUlURzVLdTc4cTNHZ3Zacm52MVpyVWtWdzdZQTVKalMxQXwzNDU4NzY0NTQyMTc1MzExNTQ5fDI=?share_link_id=531376025186)
+
 ## Installation
 
 ```bash
