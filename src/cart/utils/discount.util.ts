@@ -3,31 +3,45 @@ import { TicketType } from 'src/ticket/dto/ticketType.dto';
 export const discount = (tickets: TicketType[]) => {
   // assuming max tickets cannot go greater than 15
   const adultDiscount = 0.9;
-  let numAdults = 0;
-  let numChildren = 0;
-  let total = 0;
 
+  let total = 0;
   const adults = tickets.filter((ticket) => ticket.type === 'Adult');
   const children = tickets.filter((ticket) => ticket.type === 'Child');
 
-  if (children.length === 0) {
-    if (adults.length < 4) {
-      total += adults.length * 25;
-    } else {
+  while (adults.length !== 0 && children.length !== 0) {
+    if (adults.length === 1) {
+      total += 25;
+      adults.pop();
+      break;
     }
-  } else if (children.length === 1) {
-    total += 15;
-  } else {
+    if (children.length === 1) {
+      total += 15;
+      children.pop();
+      break;
+    }
+
+    if (children.length === 0) {
+      if (adults.length % 4 === 0) {
+        adults.pop();
+        adults.pop();
+        adults.pop();
+        adults.pop();
+        total += 100 * 0.9;
+      }
+    }
+
+    if (children.length % 3 === 0) {
+      children.pop();
+      children.pop();
+      children.pop();
+      if (adults.length % 2 === 0) {
+        adults.pop();
+        adults.pop();
+        total += 70;
+      }
+    }
   }
 
-  if (2 % children.length === 0) {
-  }
-  if (3 % children.length === 0) {
-  }
-  if (6 % children.length === 0) {
-  }
-  console.log(children.length % 6);
-  //   for (const ticket of tickets) {
   //     total += ticket.price;
   //     if (ticket.type === 'Adult') {
   //       numAdults += 1;

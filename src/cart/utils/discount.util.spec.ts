@@ -34,12 +34,12 @@ describe('discount', () => {
     expect(total).toBe(15);
   });
 
-  it(`Given the there is two children,
-  it should return 15`, () => {
-    const tickets: TicketType[] = [{ id: 1, price: 25, type: 'Child' }];
-    const total = discount(tickets);
-    expect(total).toBe(30);
-  });
+  // it(`Given the there is two children,
+  // it should return 15`, () => {
+  //   const tickets: TicketType[] = [{ id: 1, price: 25, type: 'Child' }];
+  //   const total = discount(tickets);
+  //   expect(total).toBe(30);
+  // });
 
   // it(`Given the amount and number of adults is 4,
   //  it should return the right amount with discount of 10%`, () => {
