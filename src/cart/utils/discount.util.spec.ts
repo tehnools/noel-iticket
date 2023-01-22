@@ -1,5 +1,27 @@
 import { TicketType } from 'src/ticket/dto/ticketType.dto';
-import { discount } from './discount.util';
+import { discount, calculateRemainder } from './discount.util';
+describe('calculateRemainder', () => {
+  it('should ', () => {
+    const tickets: TicketType[] = [];
+    const result = calculateRemainder(tickets);
+    expect(result).toBe(0);
+  });
+
+  it('should ', () => {
+    const tickets: TicketType[] = [{ id: 1, price: 25, type: 'Adult' }];
+    const result = calculateRemainder(tickets);
+    expect(result).toBe(25);
+  });
+
+  it('should ', () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+    ];
+    const result = calculateRemainder(tickets);
+    expect(result).toBe(30);
+  });
+});
 
 describe('discount', () => {
   it(`Given the there are no tickets,

@@ -1,24 +1,24 @@
-import e from 'express';
 import { TicketType } from 'src/ticket/dto/ticketType.dto';
+
+export const calculateRemainder = (tickets: TicketType[]) => {
+  if (tickets.length !== 0) {
+    return tickets
+      .map((ticket) => ticket.price)
+      .reduce((total, price) => total + price);
+  }
+  return 0;
+};
 
 export const discount = (tickets: TicketType[]) => {
   // assuming max tickets cannot go greater than 15
   const adultDiscount = 0.9;
   let total = 0;
-  const adults = tickets.filter((ticket) => ticket.type === 'Adult');
-  const children = tickets.filter((ticket) => ticket.type === 'Child');
+  let adults = tickets.filter((ticket) => ticket.type === 'Adult');
+  let children = tickets.filter((ticket) => ticket.type === 'Child');
+  const numberOfAdults = adults.length;
+  const numberOfChildren = children.length;
 
   while (adults.length !== 0 || children.length !== 0) {
-    if (adults.length === 1) {
-      total += adults.pop().price;
-      console.log('total');
-      break;
-    }
-    if (children.length === 1) {
-      total += children.pop().price;
-      break;
-    }
-
     console.log(
       'asdasddfa0',
       children,
@@ -31,51 +31,37 @@ export const discount = (tickets: TicketType[]) => {
       adults.length % 2,
     );
 
-    if (children.length === 0) {
-      if (adults.length >= 4) {
-        const remainingAdultPrices = adults
-          .map((ticket) => {
-            // pop adult off list
-            adults.pop();
-            return ticket.price;
-          })
-          .reduce((total, price) => total + price);
-        total += remainingAdultPrices * adultDiscount;
+    if (numberOfChildren === 0) {
+      if (numberOfAdults >= 4) {
+        total += calculateRemainder(adults) * adultDiscount;
       } else {
-        const remainingAdultPrices = adults
-          .map((ticket) => ticket.price)
-          .reduce((total, price) => total + price);
-        total += remainingAdultPrices;
-        break;
+        total += calculateRemainder(adults);
       }
-    } else if (adults.length === 0) {
-      const remaininChildPrices = children
-        .map((ticket) => ticket.price)
-        .reduce((total, price) => total + price);
-      total += remaininChildPrices;
-      break;
+      adults = adults.slice(adults.length);
+    } else if (numberOfAdults === 0) {
+      total += calculateRemainder(children);
+      children = children.slice(children.length);
     } else {
       if (adults.length % 2 === 0) {
         if (children.length % 3 === 0) {
-          children.pop();
-          children.pop();
-          children.pop();
-          adults.pop();
-          adults.pop();
+          children = children.slice(3);
+          adults = adults.slice(2);
           total += 70;
         } else if (children.length % 2 === 0) {
-          children.pop();
-          children.pop();
-          adults.pop();
-          adults.pop();
+          children = children.slice(2);
+          adults = adults.slice(2);
           total += 70;
         } else {
           total += children.pop().price;
         }
       } else {
-        total += adults.pop().price;
+        console.log('@@@', adults, children);
+        const remainder = [...adults, ...children];
+        total += calculateRemainder(remainder);
+        break;
       }
     }
+    console.log(adults);
   }
   return total;
 };
