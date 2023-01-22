@@ -41,17 +41,45 @@ describe('DatabaseDao', () => {
     });
   });
 
-  describe('update', () => {
-    it('should be able to update by id', async () => {
+  describe('getById', () => {
+    it('should be able to get by id', async () => {
       const values = { id: 1, test_name: 'test' };
       await databaseDao.insert(TABLE_NAME, values);
-      await databaseDao.update(TABLE_NAME, values, 'WHERE id = ?');
       const result = await databaseDao.getById<{
         id: number;
         test_name: string;
       }>(TABLE_NAME, 1);
 
       expect(result).toEqual({ id: 1, test_name: 'test' });
+    });
+  });
+
+  describe('update', () => {
+    it('should be able to update by id', async () => {
+      const values = { id: 1, test_name: 'test' };
+      const updateValues = { test_name: 'test_new' };
+      await databaseDao.insert(TABLE_NAME, values);
+      await databaseDao.updateById(TABLE_NAME, 1, updateValues);
+      const result = await databaseDao.getById<{
+        id: number;
+        test_name: string;
+      }>(TABLE_NAME, 1);
+
+      expect(result).toEqual({ id: 1, test_name: 'test_new' });
+    });
+  });
+
+  describe('delete', () => {
+    it('should be able to delete by id', async () => {
+      const values = { id: 1, test_name: 'test' };
+      await databaseDao.insert(TABLE_NAME, values);
+      await databaseDao.delete(TABLE_NAME, 1);
+      const result = await databaseDao.getById<{
+        id: number;
+        test_name: string;
+      }>(TABLE_NAME, 1);
+
+      expect(result).toEqual(undefined);
     });
   });
 });

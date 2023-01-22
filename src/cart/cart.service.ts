@@ -4,12 +4,9 @@ import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 
 @Injectable()
-export class CartService {
-  dbDao: DatabaseDao;
-
-  async create(createCartDto: CreateCartDto) {
+export class CartService extends DatabaseDao {
+  async createCart(createCartDto: CreateCartDto) {
     // const sql = `INSERT * INTO`
-
     return 'This action adds a new cart';
   }
 

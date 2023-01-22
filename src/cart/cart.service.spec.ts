@@ -36,6 +36,12 @@ describe('CartService', () => {
     });
   });
 
+  describe('get cart', () => {
+    it('should be able to get cart with total values', () => {
+      //TODO
+    });
+  });
+
   describe('update', () => {
     it('should be able to update cart to add ', () => {
       //TODO
