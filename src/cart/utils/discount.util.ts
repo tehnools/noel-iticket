@@ -2,10 +2,21 @@ import { TicketType } from 'src/ticket/dto/ticketType.dto';
 
 export const discount = (tickets: TicketType[]) => {
   // assuming max tickets cannot go greater than 15
-  let discount = 1.0;
+  const adultDiscount = 0.9;
   let numAdults = 0;
   let numChildren = 0;
   let total = 0;
+
+  const adults = tickets.filter((ticket) => ticket.type === 'Adult');
+  const children = tickets.filter((ticket) => ticket.type === 'Child');
+
+  if (children.length === 0) {
+    if (adults.length === 1) {
+      return 25;
+    }
+  } else if (children.length === 1) {
+    return 15;
+  }
 
   for (const ticket of tickets) {
     if (ticket.type === 'Adult') {

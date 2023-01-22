@@ -18,7 +18,7 @@ describe('discount', () => {
 
   it(`Given the there is one child,
   it should return 15`, () => {
-    const tickets: TicketType[] = [];
+    const tickets: TicketType[] = [{ id: 1, price: 25, type: 'Child' }];
     const total = discount(tickets);
     expect(total).toBe(15);
   });
