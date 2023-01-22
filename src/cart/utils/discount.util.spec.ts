@@ -67,92 +67,116 @@ describe('discount', () => {
     expect(total).toBe(90);
   });
 
-  // it(`Given the amount and number of adults is 5,
-  // it should return the right amount with discount of 10%`, () => {
-  //   const tickets: TicketType[] = [
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //   ];
-  //   const total = discount(tickets);
-  //   expect(total).toEqual(112.5);
-  // });
+  it(`Given the amount and number of adults is 5,
+  it should return the right amount with discount of 10%`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(112.5);
+  });
 
-  // it(`Given the amount and number of adults is  2 and children is  2,
-  //  it should return the right amount is 70`, () => {
-  //   const tickets: TicketType[] = [
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //   ];
-  //   const total = discount(tickets);
-  //   expect(total).toEqual(70);
-  // });
+  it(`Given the amount and number of adults is  2 and children is  2,
+   it should return the right amount is 70`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(70);
+  });
 
-  // it(`Given the amount and number of adults is > 2 and children is  3,
-  // it should return the right amount is 70`, () => {
-  //   const tickets: TicketType[] = [
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //   ];
-  //   const total = discount(tickets);
-  //   expect(total).toEqual(70);
-  // });
+  it(`Given the amount and number of adults is > 2 and children is  3,
+  it should return the right amount is 70`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(70);
+  });
 
-  // it(`Given the amount and number of adults is 4 and children is 4,
-  //  it should return the right amount is 140`, () => {
-  //   const tickets: TicketType[] = [
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //   ];
-  //   const total = discount(tickets);
-  //   expect(total).toEqual(70);
-  // });
+  it(`Given the amount and number of adults is 4 and children is 4,
+   it should return the right amount is 140`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 2, price: 25, type: 'Adult' },
+      { id: 3, price: 25, type: 'Adult' },
+      { id: 4, price: 25, type: 'Adult' },
+      { id: 5, price: 15, type: 'Child' },
+      { id: 6, price: 15, type: 'Child' },
+      { id: 7, price: 15, type: 'Child' },
+      { id: 8, price: 15, type: 'Child' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(140);
+  });
 
-  // it(`Given the amount and number of adults is 4 and children is 5,
-  // it should return the right amount is 140`, () => {
-  //   const tickets: TicketType[] = [
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //   ];
-  //   const total = discount(tickets);
-  //   expect(total).toEqual(70);
-  // });
+  it(`Given the amount and number of adults is 4 and children is 5,
+  it should return the right amount is 155`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(155);
+  });
 
-  // it(`Given the amount and number of adults is 4 and children is 6,
-  //  it should return the right amount is 140`, () => {
-  //   const tickets: TicketType[] = [
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 25, type: 'Adult' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //     { id: 1, price: 15, type: 'Child' },
-  //   ];
-  //   const total = discount(tickets);
-  //   expect(total).toEqual(70);
-  // });
+  it(`Given the amount and number of adults is 4 and children is 6,
+   it should return the right amount is 140`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(140);
+  });
+
+  it(`Given the amount and number of adults is 3 and children is 1,
+  it should return the right amount is 90`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 25, type: 'Adult' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(90);
+  });
+
+  it(`Given the amount and number of adults is 1 and children is 3,
+  it should return the right amount is 70`, () => {
+    const tickets: TicketType[] = [
+      { id: 1, price: 25, type: 'Adult' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+      { id: 1, price: 15, type: 'Child' },
+    ];
+    const total = discount(tickets);
+    expect(total).toEqual(70);
+  });
 });

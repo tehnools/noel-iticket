@@ -19,74 +19,63 @@ export const discount = (tickets: TicketType[]) => {
       break;
     }
 
+    console.log(
+      'asdasddfa0',
+      children,
+      adults,
+      'child-mod-3',
+      children.length % 3,
+      'child-mod-2',
+      children.length % 2,
+      'adult-mod-2',
+      adults.length % 2,
+    );
+
     if (children.length === 0) {
       if (adults.length >= 4) {
         const remainingAdultPrices = adults
-          .map((ticket) => ticket.price)
+          .map((ticket) => {
+            // pop adult off list
+            adults.pop();
+            return ticket.price;
+          })
           .reduce((total, price) => total + price);
         total += remainingAdultPrices * adultDiscount;
+      } else {
+        const remainingAdultPrices = adults
+          .map((ticket) => ticket.price)
+          .reduce((total, price) => total + price);
+        total += remainingAdultPrices;
         break;
+      }
+    } else if (adults.length === 0) {
+      const remaininChildPrices = children
+        .map((ticket) => ticket.price)
+        .reduce((total, price) => total + price);
+      total += remaininChildPrices;
+      break;
+    } else {
+      if (adults.length % 2 === 0) {
+        if (children.length % 3 === 0) {
+          children.pop();
+          children.pop();
+          children.pop();
+          adults.pop();
+          adults.pop();
+          total += 70;
+        } else if (children.length % 2 === 0) {
+          children.pop();
+          children.pop();
+          adults.pop();
+          adults.pop();
+          total += 70;
+        } else {
+          total += children.pop().price;
+        }
       } else {
         total += adults.pop().price;
       }
-    } else {
-      if (3 % children.length === 0 && 2 % adults.length === 0) {
-        children.pop();
-        children.pop();
-        children.pop();
-        adults.pop();
-        adults.pop();
-        total += 70;
-      } else if (2 % children.length === 0 && 2 % adults.length === 0) {
-        children.pop();
-        children.pop();
-        adults.pop();
-        adults.pop();
-        total += 70;
-      } else {
-        total += children.pop().price;
-      }
     }
   }
-
-  //     total += ticket.price;
-  //     if (ticket.type === 'Adult') {
-  //       numAdults += 1;
-  //     } else {
-  //       numChildren += 1;
-  //     }
-  //   }
-
-  //   if (numChildren === 0) {
-  //     if (numAdults < 4) {
-  //       return total;
-  //     }
-  //     return total;
-  //   } else if (numChildren === 1) return total;
-  //   else {
-  //   }
-
-  //   const adultsMod2 = numAdults % 2;
-  //   const modAdultsToChildren = numAdults % numChildren;
-  //   if (numChildren === 0) {
-  //     if (numAdults >= 4) {
-  //       discount = 0.9;
-  //     }
-  //   } else {
-  //     if (adultsMod2 === 0) {
-  //     }
-  //   }
-  //   console.log(
-  //     'numAdults',
-  //     numAdults,
-  //     numChildren,
-  //     'adultsMod2',
-  //     adultsMod2,
-  //     'modChildrenToAdults',
-  //     modAdultsToChildren,
-  //     'discount',
-  //     discount,
-  //   );
-
   return total;
 };
