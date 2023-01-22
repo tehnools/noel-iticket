@@ -1,4 +1,3 @@
-import { Ticket } from 'src/ticket/dto/ticket.dto';
 import { TicketType } from 'src/ticket/dto/ticketType.dto';
 
 export const discount = (tickets: TicketType[]) => {
@@ -14,24 +13,24 @@ export const discount = (tickets: TicketType[]) => {
       numChildren += 1;
     }
   }
-  const modAdults = numAdults % 2;
-  const modChildrenToAdults = numChildren % numAdults;
+  const adultsMod2 = numAdults % 2;
+  const modAdultsToChildren = numAdults % numChildren;
   if (numChildren === 0) {
     if (numAdults >= 4) {
       discount = 0.9;
     }
   } else {
-    if (modAdults === 0) {
+    if (adultsMod2 === 0) {
     }
   }
   console.log(
     'numAdults',
     numAdults,
     numChildren,
-    'modAdults',
-    modAdults,
+    'adultsMod2',
+    adultsMod2,
     'modChildrenToAdults',
-    modChildrenToAdults,
+    modAdultsToChildren,
     'discount',
     discount,
   );
