@@ -10,4 +10,7 @@ export class TicketType {
 
   @IsString()
   type: TicketTypeAge;
+
+  @IsNumber()
+  eventId: number;
 }

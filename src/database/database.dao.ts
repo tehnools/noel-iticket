@@ -121,6 +121,7 @@ export class DatabaseDao {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ticket_price INTEGER NOT null,
         ticket_type TEXT NOT null,
+        event_id INTEGER NOT null,
         FOREIGN KEY (event_id) REFERENCES event(id)
         ON DELETE CASCADE
     );
