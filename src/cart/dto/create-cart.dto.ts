@@ -1,13 +1,13 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 import { TicketType } from 'src/ticket/dto/ticketType.dto';
-import { CartEntity } from '../entities/cart.entity';
 
 export class CreateCartDto {
   @IsNumber()
-  id: number;
-
-  @IsNumber()
+  @IsOptional()
   eventId: number;
+
+  @IsNumber({}, { each: true })
+  seats: number[];
 
   tickets: TicketType[];
 }

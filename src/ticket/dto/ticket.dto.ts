@@ -1,8 +1,7 @@
 import { IsNumber } from 'class-validator';
-import { TicketEntity } from '../entities/ticket.entity';
 import { TicketType } from './ticketType.dto';
 
-export class Ticket implements TicketEntity {
+export class Ticket {
   @IsNumber()
   id: number;
 

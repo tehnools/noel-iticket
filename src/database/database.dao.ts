@@ -19,11 +19,66 @@ export class DatabaseDao {
         throw err;
       }
       this.createTables();
+      //   this.insertData();
+    });
+  }
+
+  private async insertData() {
+    this.db.serialize(() => {
+      this.insert('event', {
+        id: 1,
+        event_name: 'Ghost of Michael Jackson: On Tour 2021',
+        event_image_url:
+          'https://upload.wikimedia.org/wikipedia/en/c/c8/Ghosts_MJ.jpg',
+        event_type: 'allocated',
+        booking_limit: 15,
+      });
+
+      this.insert('event', {
+        id: 2,
+        event_name: "Elon Musk's Fun Doge Party",
+        event_image_url: 'https://i.redd.it/g4tnkm3pzvv61.jpg',
+        event_type: 'generalAdmission',
+        booking_limit: 15,
+      });
+
+      const seatNumbers = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
+        39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+      ];
+      for (const seatNumber of seatNumbers) {
+        this.insert('seat', {
+          id: seatNumber,
+          event_id: 1,
+          seat_value: seatNumber,
+        });
+      }
+
+      this.insert('ga_area', {
+        id: 1,
+        ga_area_value: 1,
+        event_id: 2,
+      });
+
+      this.insert('ticket_type', {
+        id: 1,
+        event_id: 1,
+        ticket_price: 25,
+        ticket_type: 'Adult',
+      });
+
+      this.insert('ticket_type', {
+        id: 2,
+        event_id: 1,
+        ticket_price: 15,
+        ticket_type: 'Child',
+      });
     });
   }
 
   // Enables foreign keys first
-  createTables() {
+  private createTables() {
     this.db.exec(
       ` 
     PRAGMA foreign_keys = ON; 
@@ -35,113 +90,60 @@ export class DatabaseDao {
         booking_limit int NOT null
     );
 
+    create table IF NOT EXISTS ga_area (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ga_area_value INTEGER NOT null,
+        event_id INTEGER NOT null,
+        ticket_id INTEGER NOT null,
+        FOREIGN KEY (event_id) REFERENCES event(id)
+        ON DELETE CASCADE,
+        FOREIGN KEY (ticket_id) REFERENCES ticket(id)
+        ON DELETE CASCADE
+    );
+
+    create table IF NOT EXISTS seat (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        seat_value INTEGER NOT null,
+        event_id INTEGER NOT null,
+        ticket_id INTEGER NOT null,
+        FOREIGN KEY (event_id) REFERENCES event(id)
+        ON DELETE CASCADE,
+        FOREIGN KEY (ticket_id) REFERENCES ticket(id)
+        ON DELETE CASCADE
+    );
+
     create table IF NOT EXISTS cart (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         cart_total int NOT null
     );
 
-    create table IF NOT EXISTS cart_to_event(
+    create table IF NOT EXISTS ticket (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         cart_id INTEGER NOT null,
-        event_id INTEGER  NOT null,
+        ticket_type_id INTEGER NOT null,
         FOREIGN KEY (cart_id) REFERENCES cart(id) 
         ON DELETE CASCADE,
-        FOREIGN KEY (event_id) REFERENCES event(id) 
+        FOREIGN KEY (ticket_type_id) REFERENCES ticket_type(id) 
         ON DELETE CASCADE,
-        UNIQUE(cart_id, event_id)
+        UNIQUE(cart_id, ticket_type_id)
     );
 
-    create table IF NOT EXISTS seat (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        value INTEGER NOT null UNIQUE,
-        event_id INTEGER NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
-    );
 
     create table IF NOT EXISTS ticket_type (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ticket_price INTEGER NOT null,
         ticket_type TEXT NOT null,
-        event_id INTEGER NOT null,
-        seat_id INTEGER NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id) 
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
     );
   
-    create table IF NOT EXISTS ticket (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cart_id INTEGER NOT null,
-        seat_id INTEGER NOT null,
-        ticket_type_id INTEGER NOT null,
-        FOREIGN KEY (cart_id) REFERENCES cart(id) 
-        ON DELETE CASCADE,
-        FOREIGN KEY (seat_id) REFERENCES seat(id) 
-        ON DELETE CASCADE,
-        FOREIGN KEY (ticket_type_id) REFERENCES ticket_type(id) 
-        ON DELETE CASCADE,
-        UNIQUE(cart_id, seat_id, ticket_type_id)
-    );
-  
-    create table IF NOT EXISTS ga_area (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ga_area_value INTEGER NOT null,
-        event_id INTEGER NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
-    );
+
+
     `,
       async (err) => {
         if (err) {
           console.log('Getting error ' + err);
           throw err;
         }
-
-        await this.insert('event', {
-          id: 1,
-          event_name: 'Ghost of Michael Jackson: On Tour 2021',
-          imageUrl:
-            'https://upload.wikimedia.org/wikipedia/en/c/c8/Ghosts_MJ.jpg',
-          type: 'allocated',
-          bookingLimit: 15,
-        });
-
-        await this.insert('event', {
-          id: 2,
-          name: "Elon Musk's Fun Doge Party",
-          imageUrl: 'https://i.redd.it/g4tnkm3pzvv61.jpg',
-          type: 'generalAdmission',
-          bookingLimit: 15,
-        });
-
-        const seatNumbers = [
-          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-          21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
-          38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
-        ];
-        for (const seatNumber of seatNumbers) {
-          await this.insert('seats', {
-            id: seatNumber,
-            seat_value: seatNumber,
-          });
-        }
-
-        await this.insert('ga_area', {
-          id: 1,
-          ga_area_value: 1,
-        });
-
-        await this.insert('ticket_type', {
-          id: 1,
-          event_id: 1,
-          price: 25,
-          type: 'Adult',
-        });
-
-        await this.insert('ticket_type', {
-          id: 2,
-          event_id: 1,
-          price: 15,
-          type: 'Child',
-        });
       },
     );
   }
@@ -152,9 +154,7 @@ export class DatabaseDao {
   ): Promise<number> {
     const query = `INSERT INTO ${tableName} (${Object.keys(params)
       .map((key) => key)
-      .join(', ')}) VALUES (${Object.keys(params).map(
-      () => '?',
-    )}) RETURNING id`;
+      .join(', ')}) VALUES (${Object.keys(params).map(() => '?')})`;
     const values = Object.values(params);
 
     return new Promise((res, rej) => {

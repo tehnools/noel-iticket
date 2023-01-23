@@ -17,7 +17,7 @@ describe('CartService', () => {
   });
 
   describe('create', () => {
-    it('should be able to create a cart and return response', () => {
+    it('should be able to create a cart and return the values', () => {
       // const service.create()
     });
 
