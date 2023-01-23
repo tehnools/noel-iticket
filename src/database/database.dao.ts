@@ -48,16 +48,16 @@ export class DatabaseDao {
         39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
       ];
       for (const seatNumber of seatNumbers) {
-        this.insert('seat', {
+        this.insert('allocation', {
           id: seatNumber,
           event_id: 1,
-          seat_value: seatNumber,
+          allocation_value: seatNumber,
         });
       }
 
-      this.insert('ga_area', {
+      this.insert('allocation', {
         id: 1,
-        ga_area_value: 1,
+        allocation_value: 1,
         event_id: 2,
       });
 
@@ -90,28 +90,14 @@ export class DatabaseDao {
         booking_limit int NOT null
     );
 
-    create table IF NOT EXISTS ga_area (
+    create table IF NOT EXISTS allocation (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ga_area_value INTEGER NOT null,
+        value INTEGER NOT null,
         event_id INTEGER NOT null,
-        ticket_id INTEGER NOT null,
         FOREIGN KEY (event_id) REFERENCES event(id)
-        ON DELETE CASCADE,
-        FOREIGN KEY (ticket_id) REFERENCES ticket(id)
         ON DELETE CASCADE
     );
-
-    create table IF NOT EXISTS seat (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        seat_value INTEGER NOT null,
-        event_id INTEGER NOT null,
-        ticket_id INTEGER NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
-        ON DELETE CASCADE,
-        FOREIGN KEY (ticket_id) REFERENCES ticket(id)
-        ON DELETE CASCADE
-    );
-
+    
     create table IF NOT EXISTS cart (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         cart_total int NOT null
@@ -121,18 +107,22 @@ export class DatabaseDao {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         cart_id INTEGER NOT null,
         ticket_type_id INTEGER NOT null,
+        allocation_id INTEGER NOT null,
         FOREIGN KEY (cart_id) REFERENCES cart(id) 
         ON DELETE CASCADE,
         FOREIGN KEY (ticket_type_id) REFERENCES ticket_type(id) 
         ON DELETE CASCADE,
-        UNIQUE(cart_id, ticket_type_id)
+        FOREIGN KEY (allocation_id) REFERENCES allocation(id) 
+        ON DELETE CASCADE,
+        UNIQUE(cart_id, ticket_type_id, allocation_id)
     );
-
 
     create table IF NOT EXISTS ticket_type (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ticket_price INTEGER NOT null,
-        ticket_type TEXT NOT null
+        ticket_type TEXT NOT null,
+        FOREIGN KEY (event_id) REFERENCES event(id)
+        ON DELETE CASCADE
     );
   
 
