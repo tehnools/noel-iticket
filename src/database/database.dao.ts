@@ -132,8 +132,7 @@ export class DatabaseDao {
     create table IF NOT EXISTS ticket_type (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ticket_price INTEGER NOT null,
-        ticket_type TEXT NOT null,
-        ON DELETE CASCADE
+        ticket_type TEXT NOT null
     );
   
 

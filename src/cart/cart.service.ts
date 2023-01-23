@@ -7,13 +7,13 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 export class CartService {
   databaseDao: DatabaseDao;
 
-  constructor(databaseDao) {
+  constructor(databaseDao: DatabaseDao) {
     this.databaseDao = databaseDao;
   }
 
   async createCart({ eventId, seats, tickets }: CreateCartDto) {
     const query = `SELECT * from seats WHERE`;
-    this.databaseDao.db.all([]);
+    // this.databaseDao.db.all([]);
 
     return 'valid';
     // return this.databaseDao.insert('cart', createCartDto);
