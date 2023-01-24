@@ -4,10 +4,9 @@ import { AppService } from './app.service';
 import { CartModule } from './cart/cart.module';
 import { TicketModule } from './ticket/ticket.module';
 import { EventModule } from './event/event.module';
-import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [CartModule, TicketModule, EventModule, DatabaseModule],
+  imports: [CartModule, TicketModule, EventModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { error } from 'console';
 import { DatabaseDao } from 'src/database/database.dao';
 import { EventEntity } from 'src/event/entities/event.entity';
-import { CartDto, CreateCartDto } from './dto/cart-create.dto';
+import { CreateCartDto } from './dto/cart-create.dto';
 import { CartResponseEntity } from './entities/cart.response.entity';
-import { discount } from './utils/discount.util';
 
 @Injectable()
 export class CartService {
@@ -17,33 +17,58 @@ export class CartService {
     eventId,
     tickets,
   }: CreateCartDto): Promise<CartResponseEntity> {
-    // this.databaseDao.db.all([]);
-    const cartId = await this.databaseDao.insert('cart', { total: 0 });
-    const event = await this.databaseDao.getById<EventEntity>('event', eventId);
+    console.info('Getting event by id', eventId);
+    // const event = await this.databaseDao.getById<EventEntity>('event', eventId);
 
-    if (!event) {
-      throw new Error('Event not found');
-    }
+    // if (!event) {
+    //   console.error('Event does not exist');
+    //   throw new HttpException('Invalid cart', HttpStatus.BAD_REQUEST);
+    // }
 
-    if (tickets.length > event.bookingLimit) {
-      throw new Error('Past booking limit');
+    // if (tickets.length > event.bookingLimit) {
+    //   throw new HttpException(
+    //     'Invalid cart pass booking limit',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
+
+    if (tickets.length === 0) {
+      throw new HttpException('Invalid cart', HttpStatus.BAD_REQUEST);
     }
 
     const query = `INSERT  INTO ticket (cart_id, allocation_id, ticket_type_id) 
-      VALUES ${tickets.map((result) => result + ',(?,?,?)')};
+    VALUES ${tickets
+      .map(() => '(?,?,?)')
+      .join(',')
+      .toString()};
     `;
+
+    console.info('Creating cart');
+    const cartId = await this.databaseDao.insert('cart', { cart_total: 0 });
+    console.info('Created Cart', cartId);
 
     if (tickets.length > 0) {
       const flattenTickets = tickets.map((ticket) => [
-        ticket.cartId,
+        cartId,
         ticket.allocationId,
         ticket.ticketTypeId,
       ]);
-      this.databaseDao.db.serialize(() => {
-        this.databaseDao.db.run(query, [...flattenTickets], function (err) {
-          if (err) throw err;
+      console.info('Adding Tickets to cartId', cartId);
+
+      const conn = this.databaseDao.createDatabase();
+      await new Promise((_, rej) => {
+        conn.serialize(() => {
+          for (const ticket of flattenTickets) {
+            conn.run(query, ticket, function (err) {
+              if (err) {
+                rej(err);
+              }
+              console.info('Ticket added', cartId);
+            });
+          }
         });
       });
+      conn.close();
     }
 
     return this.findOne(cartId);
@@ -55,14 +80,22 @@ export class CartService {
   }
 
   async findOne(id: number): Promise<CartResponseEntity> {
-    const query = `SELECT cart AS c, ticket AS t FROM A 
-    LEFT JOIN T ON C.id = T.cartId WHERE cartId = 1
+    const query = `
     `;
 
-    return this.databaseDao.getById<CartResponseEntity>('cart', id);
+    const conn = this.databaseDao.createDatabase();
+    return new Promise((res, rej) => {
+      conn
+        .run(query, id, (err, rows) => {
+          if (error) {
+            rej(err);
+          } else res(rows[0] as CartResponseEntity);
+        })
+        .close();
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} cart`;
+    return this.databaseDao.delete('cart', id);
   }
 }

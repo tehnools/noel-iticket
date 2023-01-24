@@ -1,5 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { Database } from 'sqlite3';
 
+@Injectable()
 export class DatabaseDao {
   // for the sake of time this is set as public
   public db: Database;
@@ -9,24 +11,24 @@ export class DatabaseDao {
   }
 
   private init() {
-    this.db = this.createDatabase();
+    // this.createTables();
+    // this.insertData();
   }
 
-  private createDatabase() {
+  public createDatabase() {
     return new Database('test.sqlite3', (err) => {
       if (err) {
         console.log('Getting error ' + err);
         throw err;
       }
-      this.createTables();
-      //   this.insertData();
     });
   }
 
   private async insertData() {
-    this.db.serialize(() => {
+    const conn = this.createDatabase();
+    conn.serialize(async () => {
       this.insert('event', {
-        id: 1,
+        event_id: 1,
         event_name: 'Ghost of Michael Jackson: On Tour 2021',
         event_image_url:
           'https://upload.wikimedia.org/wikipedia/en/c/c8/Ghosts_MJ.jpg',
@@ -35,7 +37,7 @@ export class DatabaseDao {
       });
 
       this.insert('event', {
-        id: 2,
+        event_id: 2,
         event_name: "Elon Musk's Fun Doge Party",
         event_image_url: 'https://i.redd.it/g4tnkm3pzvv61.jpg',
         event_type: 'generalAdmission',
@@ -49,41 +51,43 @@ export class DatabaseDao {
       ];
       for (const seatNumber of seatNumbers) {
         this.insert('allocation', {
-          id: seatNumber,
+          allocation_id: seatNumber,
           event_id: 1,
-          allocation_value: seatNumber,
+          value: seatNumber,
         });
       }
 
       this.insert('allocation', {
-        id: 1,
-        allocation_value: 1,
+        allocation_id: 51,
+        value: 1,
         event_id: 2,
       });
 
       this.insert('ticket_type', {
-        id: 1,
+        ticket_type_id: 1,
         event_id: 1,
         ticket_price: 25,
         ticket_type: 'Adult',
       });
 
       this.insert('ticket_type', {
-        id: 2,
+        ticket_type_id: 2,
         event_id: 1,
         ticket_price: 15,
         ticket_type: 'Child',
       });
+      await this.close(conn);
     });
   }
 
   // Enables foreign keys first
-  private createTables() {
-    this.db.exec(
+  private async createTables() {
+    const conn = this.createDatabase();
+    conn.exec(
       ` 
     PRAGMA foreign_keys = ON; 
     create table IF NOT EXISTS event (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id INTEGER PRIMARY KEY AUTOINCREMENT,
         event_name TEXT NOT null,
         event_image_url TEXT NOT null,
         event_type TEXT NOT null,
@@ -91,43 +95,39 @@ export class DatabaseDao {
     );
 
     create table IF NOT EXISTS allocation (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
         value INTEGER NOT null,
         event_id INTEGER NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
+        FOREIGN KEY (event_id) REFERENCES event(event_id)
         ON DELETE CASCADE
     );
     
     create table IF NOT EXISTS cart (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cart_total int NOT null
+      cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      cart_total int NOT null
     );
 
     create table IF NOT EXISTS ticket (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
         cart_id INTEGER NOT null,
         ticket_type_id INTEGER NOT null,
         allocation_id INTEGER NOT null,
-        FOREIGN KEY (cart_id) REFERENCES cart(id) 
+        FOREIGN KEY (cart_id) REFERENCES cart(cart_id) 
         ON DELETE CASCADE,
-        FOREIGN KEY (ticket_type_id) REFERENCES ticket_type(id) 
+        FOREIGN KEY (ticket_type_id) REFERENCES ticket_type(ticket_type_id) 
         ON DELETE CASCADE,
-        FOREIGN KEY (allocation_id) REFERENCES allocation(id) 
-        ON DELETE CASCADE,
-        UNIQUE(cart_id, ticket_type_id, allocation_id)
+        FOREIGN KEY (allocation_id) REFERENCES allocation(allocation_id) 
+        ON DELETE CASCADE
     );
 
     create table IF NOT EXISTS ticket_type (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ticket_type_id INTEGER PRIMARY KEY AUTOINCREMENT,
         ticket_price INTEGER NOT null,
         ticket_type TEXT NOT null,
         event_id INTEGER NOT null,
-        FOREIGN KEY (event_id) REFERENCES event(id)
+        FOREIGN KEY (event_id) REFERENCES event(event_id)
         ON DELETE CASCADE
     );
-  
-
-
     `,
       async (err) => {
         if (err) {
@@ -136,6 +136,7 @@ export class DatabaseDao {
         }
       },
     );
+    await this.close(conn);
   }
 
   public async insert(
@@ -146,11 +147,10 @@ export class DatabaseDao {
       .map((key) => key)
       .join(', ')}) VALUES (${Object.keys(params).map(() => '?')})`;
     const values = Object.values(params);
-
-    return new Promise((res, rej) => {
-      console.info('INSERTNG QUERY: ' + query);
+    const conn = this.createDatabase();
+    const result = await new Promise<number>((res, rej) => {
       console.info('Values', values);
-      this.db.run(query, values, function (err) {
+      conn.run(query, values, function (err) {
         if (err) {
           console.error(`Query Error: ${err}`);
           rej(err);
@@ -158,12 +158,15 @@ export class DatabaseDao {
         res(this.lastID);
       });
     });
+    await this.close(conn);
+    return result;
   }
 
   public async getAll<T>(tableName: string, id: number): Promise<T[]> {
-    const query = `SELECT * FROM ${tableName} WHERE id = ?;`;
-    return new Promise((res, rej) => {
-      this.db.get(query, [id], (err, rows) => {
+    const query = `SELECT * FROM ${tableName} WHERE ${tableName}_id = ?;`;
+    const conn = this.createDatabase();
+    const result: T[] = await new Promise((res, rej) => {
+      conn.get(query, [id], (err, rows) => {
         if (err) {
           console.error(`Query Error: ${err}`);
           rej(err);
@@ -171,12 +174,15 @@ export class DatabaseDao {
         res(rows);
       });
     });
+    await this.close(conn);
+    return result;
   }
 
   public async getById<T>(tableName: string, id: number): Promise<T> {
-    const query = `SELECT * FROM ${tableName} WHERE id = ?;`;
-    return new Promise((res, rej) => {
-      this.db.get(query, [id], (err, row) => {
+    const query = `SELECT * FROM ${tableName} WHERE ${tableName}_id = ?;`;
+    const conn = this.createDatabase();
+    const result: T = await new Promise((res, rej) => {
+      conn.get(query, [id], (err, row) => {
         if (err) {
           console.error(`Query Error: ${err}`);
           rej(err);
@@ -184,6 +190,9 @@ export class DatabaseDao {
         res(row);
       });
     });
+    await this.close(conn);
+    console.log('getById result', result);
+    return result;
   }
 
   public async updateById(
@@ -195,43 +204,49 @@ export class DatabaseDao {
     SET ${Object.keys(params)
       .map((key) => `${key} = ?`)
       .join(',')}
-    WHERE ID = ?
+    WHERE ID = ${tableName}_?
     ;`;
 
-    return new Promise((res, rej) => {
+    const conn = this.createDatabase();
+    await new Promise((res, rej) => {
       const values = [...Object.values(params), id];
       console.info('UPDATING QUERY: ' + query);
       console.info('Values', values);
-
-      this.db.run(query, values, function (err) {
+      conn.run(query, values, function (err) {
         if (err) {
           console.error(`Query Error: ${err}`);
           rej(err);
         }
-        res();
+        res(true);
       });
     });
+    await this.close(conn);
   }
 
-  public delete(tableName: string, id: number): Promise<void> {
+  public async delete(tableName: string, id: number): Promise<void> {
     const query = `DELETE FROM ${tableName} WHERE id = ?;`;
-    return new Promise((res, rej) => {
-      this.db.run(query, [id], (err) => {
+    const conn = this.createDatabase();
+    await new Promise((res, rej) => {
+      conn.run(query, [id], (err) => {
         if (err) {
           console.error(`Query Error: ${err}`);
           rej(err);
         }
-        res();
+        res(true);
       });
     });
+    await this.close(conn);
   }
 
-  async close() {
-    this.db.close((err) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log('Closde database connection');
+  async close(conn: Database): Promise<void> {
+    return new Promise((res, rej) => {
+      conn.close((err) => {
+        if (err) {
+          rej(err);
+        }
+        console.log('Closde database connection');
+        res();
+      });
     });
   }
 }
