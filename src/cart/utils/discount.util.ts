@@ -1,6 +1,6 @@
-import { TicketType } from 'src/ticket/dto/ticketType.dto';
+import { Ticket } from 'src/ticket/dto/ticket-create.dto';
 
-export const calculateRemainder = (tickets: TicketType[]) => {
+export const calculateRemainder = (tickets: Ticket[]) => {
   if (tickets.length !== 0) {
     return tickets
       .map((ticket) => ticket.price)
@@ -9,7 +9,7 @@ export const calculateRemainder = (tickets: TicketType[]) => {
   return 0;
 };
 
-export const discount = (tickets: TicketType[]) => {
+export const discount = (tickets: Ticket[]) => {
   // assuming max tickets cannot go greater than 15
   const adultDiscount = 0.9;
   let total = 0;

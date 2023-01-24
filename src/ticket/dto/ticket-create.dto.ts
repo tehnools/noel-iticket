@@ -1,4 +1,5 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
+import { TicketTypeAge } from '../entities/ticketType.entity';
 
 export class Ticket {
   @IsNumber()
@@ -9,4 +10,9 @@ export class Ticket {
 
   @IsNumber()
   allocationId: number;
+
+  @IsNumber()
+  price: number;
+
+  type: TicketTypeAge;
 }

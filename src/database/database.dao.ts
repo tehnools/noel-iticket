@@ -162,11 +162,11 @@ export class DatabaseDao {
     return result;
   }
 
-  public async getAll<T>(tableName: string, id: number): Promise<T[]> {
-    const query = `SELECT * FROM ${tableName} WHERE ${tableName}_id = ?;`;
+  public async getAll<T>(tableName: string): Promise<T[]> {
+    const query = `SELECT * FROM ${tableName};`;
     const conn = this.createDatabase();
     const result: T[] = await new Promise((res, rej) => {
-      conn.get(query, [id], (err, rows) => {
+      conn.get(query, (err, rows) => {
         if (err) {
           console.error(`Query Error: ${err}`);
           rej(err);
@@ -204,13 +204,13 @@ export class DatabaseDao {
     SET ${Object.keys(params)
       .map((key) => `${key} = ?`)
       .join(',')}
-    WHERE ID = ${tableName}_?
+    WHERE ${tableName}_id  = ?
     ;`;
 
+    console.info('UPDATING QUERY: ' + query);
     const conn = this.createDatabase();
     await new Promise((res, rej) => {
-      const values = [...Object.values(params), id];
-      console.info('UPDATING QUERY: ' + query);
+      const values = [...Object.values(params), Number(id)];
       console.info('Values', values);
       conn.run(query, values, function (err) {
         if (err) {
@@ -224,7 +224,7 @@ export class DatabaseDao {
   }
 
   public async delete(tableName: string, id: number): Promise<void> {
-    const query = `DELETE FROM ${tableName} WHERE id = ?;`;
+    const query = `DELETE FROM ${tableName} WHERE ${tableName}_id = ?;`;
     const conn = this.createDatabase();
     await new Promise((res, rej) => {
       conn.run(query, [id], (err) => {
