@@ -59,18 +59,6 @@ export class CartService {
     console.log('adding tickets', flattenTickets);
     const conn = this.databaseDao.createDatabase();
     await new Promise((res, rej) => {
-      // conn.serialize(() => {
-      //   for (const ticket of flattenTickets) {
-      //     conn.run(query, ticket, function (err) {
-      //       if (err) {
-      //         rej(err);
-      //       }
-      //       console.info('Ticket added', cartId);
-      //       res(true);
-      //     });
-      //   }
-      // });
-
       conn.run(query, flattenTickets, function (err) {
         if (err) {
           rej(err);
